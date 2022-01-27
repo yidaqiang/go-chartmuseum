@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	baseUrl  = "https://chart.ydq.io"
-	name     = "gitlab-ha"
-	version1 = "0.4.3"
-	version2 = "0.4.0"
+	baseUrl  = "https://chart.test.ydq.io"
+	name     = "devops-service"
+	version1 = "1.0.0"
+	version2 = "1.1.0"
 	username = "vista"
-	password = "yishuida1023CM"
-	repos    = []string{"test"}
+	password = "password"
+	repos    = []string{"test", "vista"}
 
 	tp = BasicAuthTransport{
 		Username: strings.TrimSpace(username),
@@ -139,6 +139,24 @@ func TestChartService_GetChartVersion(t *testing.T) {
 
 	t.Logf("chart %s version: %+v", result.Metadata.Name, result)
 	t.Log(resp.Message)
+}
+
+func TestChartService_DownloadChart(t *testing.T) {
+	chartName := "devops-service"
+	chartVersion := "1.0.0"
+	repos := []string{"hzero", "c7ncd"}
+	baseUrl := "https://chart.choerodon.com.cn"
+	ci := ChartInfo{
+		Name:    &chartName,
+		Version: &chartVersion,
+		Repos:   &repos,
+	}
+	client, _ := NewClient(baseUrl, nil)
+
+	err := client.ChartService.DownloadChart(context.Background(), &ci, "/tmp")
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestChartInfo_String(t *testing.T) {

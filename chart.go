@@ -2,12 +2,14 @@ package go_chartmuseum
 
 import "C"
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
-	helm_repo "helm.sh/helm/v3/pkg/repo"
+	helmrepo "helm.sh/helm/v3/pkg/repo"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type (
@@ -98,13 +100,13 @@ func (s *ChartService) DeleteChartVersion(ctx context.Context, ci *ChartInfo) (*
 }
 
 // ListCharts List all Helm Chart from a ChartMuseum server
-func (s *ChartService) ListCharts(ctx context.Context, ci *ChartInfo, chartsMap *map[string]helm_repo.ChartVersions) (*Response, error) {
+func (s *ChartService) ListCharts(ctx context.Context, ci *ChartInfo, chartsMap *map[string]helmrepo.ChartVersions) (*Response, error) {
 	if err := ci.CheckRepos(); err != nil {
 		return nil, err
 	}
 
 	u := fmt.Sprintf("api/%s/charts", ci.ReposString())
-	req, err := s.client.NewRequest("GET", u, nil)
+	req, err := s.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to create a GET request")
 	}
@@ -116,13 +118,13 @@ func (s *ChartService) ListCharts(ctx context.Context, ci *ChartInfo, chartsMap 
 }
 
 // GetCharts Get a Helm Chart of repo from a ChartMuseum server
-func (s *ChartService) GetCharts(ctx context.Context, ci *ChartInfo, charts *helm_repo.ChartVersions) (*Response, error) {
+func (s *ChartService) GetCharts(ctx context.Context, ci *ChartInfo, charts *helmrepo.ChartVersions) (*Response, error) {
 	if err := ci.CheckReposAndName(); err != nil {
 		return nil, err
 	}
 	u := fmt.Sprintf("api/%s/charts/%s", ci.ReposString(), *ci.Name)
 
-	req, err := s.client.NewRequest("GET", u, nil)
+	req, err := s.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to create a GET request")
 	}
@@ -134,13 +136,13 @@ func (s *ChartService) GetCharts(ctx context.Context, ci *ChartInfo, charts *hel
 }
 
 // GetChartVersion Get a Helm Chart version of repo from a ChartMuseum server
-func (s *ChartService) GetChartVersion(ctx context.Context, ci *ChartInfo, chart *helm_repo.ChartVersion) (*Response, error) {
+func (s *ChartService) GetChartVersion(ctx context.Context, ci *ChartInfo, chart *helmrepo.ChartVersion) (*Response, error) {
 	if err := ci.CheckALl(); err != nil {
 		return nil, err
 	}
 	u := fmt.Sprintf("api/%s/charts/%s/%s", ci.ReposString(), *ci.Name, *ci.Version)
 
-	req, err := s.client.NewRequest("GET", u, nil)
+	req, err := s.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to create a GET request")
 	}
@@ -149,6 +151,26 @@ func (s *ChartService) GetChartVersion(ctx context.Context, ci *ChartInfo, chart
 		return resp, errors.Wrap(err, "Failed to execute the GET request")
 	}
 	return resp, nil
+}
+
+func (s *ChartService) DownloadChart(ctx context.Context, ci *ChartInfo, dest string) error {
+	if err := ci.CheckALl(); err != nil {
+		return err
+	}
+
+	u := fmt.Sprintf("%s/charts/%s-%s.tgz", ci.ReposString(), *ci.Name, *ci.Version)
+	data := new(bytes.Buffer)
+	_, err := s.downloadChartHelper(ctx, u, data)
+	if err != nil {
+		return err
+	}
+
+	destfile := filepath.Join(dest, filepath.Base(u))
+
+	if err := AtomicWriteFile(destfile, data, 0644); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *ChartService) IsExistChart(ctx context.Context, ci *ChartInfo) (bool, error) {
@@ -193,10 +215,25 @@ func (s *ChartService) uploadChartHelper(ctx context.Context, u string, file *os
 	return resp, nil
 }
 
+func (s *ChartService) downloadChartHelper(ctx context.Context, u string, buffer *bytes.Buffer) (*Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create a GET request")
+	}
+
+	resp, err := s.client.Do(ctx, req, buffer)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to execute the GET request")
+	}
+
+	return resp, err
+}
+
 // deleteChartHelper prepares and executes the delete request
 func (s *ChartService) deleteChartHelper(ctx context.Context, u string) (*Response, error) {
 
-	req, err := s.client.NewRequest("DELETE", u, nil)
+	req, err := s.client.NewRequest(http.MethodDelete, u, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to create a DELETE request")
 	}
@@ -208,7 +245,7 @@ func (s *ChartService) deleteChartHelper(ctx context.Context, u string) (*Respon
 }
 
 func (s *ChartService) isExistChartHelper(ctx context.Context, u string) (bool, error) {
-	req, err := s.client.NewRequest("HEAD", u, nil)
+	req, err := s.client.NewRequest(http.MethodHead, u, nil)
 	if err != nil {
 		return false, errors.Wrap(err, "Failed to create a HEAD request")
 	}
