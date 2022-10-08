@@ -1,16 +1,16 @@
 <h1 align="center">go-chartmuseum</h1>
 
 <div align="center">
-go library for chartmuseum
+ChartMuseum API Go 语言库
 </div>
 
-[English](./README.md) | [中文简体](./README-zh_CN.md) 
+[English](./README.md) | [中文简体](./README-zh_CN.md)
 
-## ✨ Features
+## ✨ 特性
 
-- 🌈 Wrap the chartmuseum api as a go library.
-- 📦 Plain and simple error handling.
-- 🛡 Perfect test cases.
+- 🌈 对 ChartMuseum API 的Go语言封装。
+- 📦 简洁明了的错误处理。
+- 🛡 的完善用例测试。
 
 ## API
 
@@ -19,7 +19,7 @@ go library for chartmuseum
 Helm Chart Repository
 
 - [ ] `GET /index.yaml`  - retrieved when you run `helm repo add chartmuseum http://localhost:8080/`
-- [x] `GET /charts/mychart-0.1.0.tgz`  retrieved when you run `helm install chartmuseum/mychart`
+- [ ] `GET /charts/mychart-0.1.0.tgz`  retrieved when you run `helm install chartmuseum/mychart`
 - [ ] `GET /charts/mychart-0.1.0.tgz.prov`  - retrieved when you run `helm install` with the `--verify flag`
 
 Chart Manipulation
@@ -35,17 +35,17 @@ Chart Manipulation
 
 Server Info
 
-- [x] `GET /` - HTML welcome page
-- [x] `GET /info` - returns current ChartMuseum version
-- [x] `GET /health` - returns 200 OK
+- [ ] `GET /` - HTML welcome page
+- [ ] `GET /info` - returns current ChartMuseum version
+- [ ] `GET /health` - returns 200 OK
 
-## 📦 Install
+## 📦 安装
 
 ```bash
 go get github.com/yidaqiang/go-chartmuseum
 ```
 
-## 🔨 Usage
+## 🔨 示例
 
 ```go
 package main
@@ -75,7 +75,7 @@ func main() {
 }
 ```
 
-## ⌨️ Development
+## ⌨ 本地开发
 
 clone locally:
 
@@ -85,15 +85,13 @@ $ cd go-chartmuseum
 $ go mod tidy
 ```
 
-## 🤝 Contributing
+## 🤝 参与共建
 
-Read our [contributing guide]() and let's build a better antd together.
+请参考[贡献指南]()。
 
-We welcome all contributions. Please read our [CONTRIBUTING.md](https://github.com/yidaqiang/go-chartmuseum/blob/master/.github/CONTRIBUTING.md) first. You can submit any ideas as [pull requests](https://github.com/yidaqiang/go-chartmuseum/pulls) or as [GitHub issues](https://github.com/yidaqiang/go-chartmuseum/issues). If you'd like to improve code, check out the [Development Instructions]() and have a good time! :)
+> 强烈推荐阅读 [《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way)、[《如何向开源社区提问题》](https://github.com/seajs/seajs/issues/545) 和 [《如何有效地报告 Bug》](http://www.chiark.greenend.org.uk/%7Esgtatham/bugs-cn.html)、[《如何向开源项目提交无法解答的问题》](https://zhuanlan.zhihu.com/p/25795393)，更好的问题更容易获得帮助。
 
-If you are a collaborator, please follow our [Pull Request principle]() to create a Pull Request with [collaborator template]().
-
-## ❤ Sponsors and Backers
+## ❤ 赞助者
 
 
 

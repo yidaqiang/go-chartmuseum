@@ -1,0 +1,17 @@
+version: '3'
+services:
+  chartmuseum:
+    image: "ghcr.io/helm/chartmuseum:v0.15.0"
+    ports:
+      - "8080:8080"
+    restart: always
+    volumes:
+      - ./charts:/charts
+    environment:
+      STORAGE: "local"
+      STORAGE_LOCAL_ROOTDIR: "/charts"
+      DEPTH: "1"
+      DISABLE_API: "false"
+      AUTH_ANONYMOUS_GET: "true"
+      BASIC_AUTH_USER: "admin"
+      MYSQL_PASSWORD: "password"

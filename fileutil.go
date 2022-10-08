@@ -1,4 +1,4 @@
-package go_chartmuseum
+package chartmuseum
 
 import (
 	"github.com/pkg/errors"
